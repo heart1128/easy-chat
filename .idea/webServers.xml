@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="d01924c8-4dbf-47be-ac47-d72fe955f311" name="aliyun" url="http://8.149.142.249">
+        <fileTransfer rootFolder="/root/easy-chat" accessType="SFTP" host="8.149.142.249" port="22" sshConfigId="72212c5b-2124-4b91-9038-01cfc168aa7f" sshConfig="root@8.149.142.249:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
