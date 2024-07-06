@@ -4,3 +4,15 @@ Etcd:
   Hosts:
   - 10.1.2.237:3379
   Key: user.rpc
+
+Mysql:
+  DataSource: root:easy-chat@tcp(10.1.2.237:13306)/easy_chat?charset=utf8mb4
+
+Cache:
+  - Host: 10.1.2.237:16379
+    Type: node
+    Pass: easy-chat
+
+Jwt:
+  AccessSecret: heart.com
+  AccessExpire: 8640000 # 100天过期
