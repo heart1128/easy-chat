@@ -1,7 +1,13 @@
 # 所有启动的服务，执行脚本
 # 定一个数组包含所有执行脚本
 need_start_server_shell=(
+ # rpc
   user-rpc-test.sh
+  social-rpc-test.sh
+
+  # api
+  user-api-test.sh
+  social-api-test.sh
 )
 
 # for循环加权限，执行

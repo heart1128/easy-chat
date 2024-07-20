@@ -154,7 +154,11 @@ func (m *defaultFriendsModel)Inserts(ctx context.Context, session sqlx.Session, 
 	// 进行sql处理
 		// friendsRowsExpectAutoSet自动设置表字段，就是全部字段
 	// insert to table () values(?,?,?,?....)
-	sql.WriteString(fmt.Sprintf("insert into %s (%s) values ", m.table, friendsRowsExpectAutoSet))
+	sql.WriteString(fmt.Sprintf("insert into %s (%s,%s,%s,%s,%s) values ", m.table, "user_id" ,
+																							"friend_uid",
+																							"remark",
+																							"add_source",
+																							"created_at"))
 	// 插入多条数据
 	// insert to table () values(?,?,?,?....),(),(),()
 	for i, v := range data{
@@ -183,7 +187,7 @@ func (m *defaultFriendsModel)ListByUserid(ctx context.Context, userId string)([]
 	query := fmt.Sprintf("select %s from %s where `user_id` = ?", friendsRows, m.table)
 
 	var resp []*Friends
-	err := m.QueryRowNoCacheCtx(ctx, &resp, query, userId)
+	err := m.QueryRowsNoCacheCtx(ctx, &resp, query, userId)
 	if err != nil {
 		return nil, err
 	}

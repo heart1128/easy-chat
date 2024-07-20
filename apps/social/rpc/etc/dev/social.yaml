@@ -1,5 +1,5 @@
 Name: social.rpc
-ListenOn: 127.0.0.1:10001
+ListenOn: 127.0.0.1:10002
 Etcd:
   Hosts:
     - 10.1.2.237:3379
