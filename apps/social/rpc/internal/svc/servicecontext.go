@@ -32,3 +32,4 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		GroupMembersModel:   socialmodels.NewGroupMembersModel(sqlConn, c.Cache),
 	}
 }
+

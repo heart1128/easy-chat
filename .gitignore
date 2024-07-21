@@ -1,2 +1,2 @@
-./bin
-./components
+bin/*
+components/*

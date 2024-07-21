@@ -5,7 +5,10 @@ import (
 
 	"easy-chat/apps/social/api/internal/svc"
 	"easy-chat/apps/social/api/internal/types"
+	"easy-chat/apps/social/rpc/socialclient"
+	"easy-chat/pkg/ctxdata"
 
+	"github.com/jinzhu/copier"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -27,5 +30,17 @@ func NewFriendPutInListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *F
 func (l *FriendPutInListLogic) FriendPutInList(req *types.FriendPutInListReq) (resp *types.FriendPutInListResp, err error) {
 	// todo: add your logic here and delete this line
 
-	return
+	// 直接调用grpc的client请求
+	list, err := l.svcCtx.Social.FriendPutInList(l.ctx, &socialclient.FriendPutInListReq{
+		UserId: ctxdata.GetUId(l.ctx),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	var respList []*types.FriendRequests
+	copier.Copy(&respList, list.List)
+
+	return &types.FriendPutInListResp{List: respList}, nil
 }

@@ -1160,3 +1160,8 @@ $3
 DEL
 $26
 cache:users:id:15141882775
+*2
+$3
+DEL
+$25
+cache:friendRequests:id:7
