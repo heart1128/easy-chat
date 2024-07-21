@@ -2,7 +2,7 @@
  * @Author: heart1128 1020273485@qq.com
  * @Date: 2024-07-13 10:04:13
  * @LastEditors: heart1128 1020273485@qq.com
- * @LastEditTime: 2024-07-21 10:32:59
+ * @LastEditTime: 2024-07-21 10:36:54
  * @FilePath: /easy-chat/apps/social/api/internal/logic/group/groupuserlistlogic.go
  * @Description:  learn
  */
@@ -39,6 +39,10 @@ func (l *GroupUserListLogic) GroupUserList(req *types.GroupUserListReq) (resp *t
 	groupUsers, err := l.svcCtx.Social.GroupUsers(l.ctx, &socialclient.GroupUsersReq{
 		GroupId: req.GroupId,
 	})
+
+	if err != nil{
+		return nil, err
+	}
 
 	// 还需要获取用户的信息
 	uids := make([]string, 0, len(groupUsers.List))

@@ -2,7 +2,7 @@
  * @Author: heart1128 1020273485@qq.com
  * @Date: 2024-07-13 10:04:13
  * @LastEditors: heart1128 1020273485@qq.com
- * @LastEditTime: 2024-07-21 10:32:19
+ * @LastEditTime: 2024-07-21 10:36:28
  * @FilePath: /easy-chat/apps/social/api/internal/logic/group/groupputinlistlogic.go
  * @Description:  learn
  */
@@ -40,6 +40,10 @@ func (l *GroupPutInListLogic) GroupPutInList(req *types.GroupPutInListRep) (resp
 	list, err := l.svcCtx.Social.GroupPutinList(l.ctx, &socialclient.GroupPutinListReq{
 		GroupId: req.GroupId,
 	})
+
+	if err != nil{
+		return nil, err
+	}
 
 	var respList []*types.GroupRequests
 	copier.Copy(&respList, list.List)
