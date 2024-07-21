@@ -21,6 +21,7 @@ type JwtAuth struct {
 // Auth jwt鉴权
 func (j JwtAuth) Auth(w http.ResponseWriter, r *http.Request) bool {
 	// 1. 从http request的header中解析token
+
 	tok, err := j.parser.ParseToken(r, j.svc.Config.JwtAuth.AccessSecret, "")
 	if err != nil {
 		j.Errorf("parse token err %v", err)
