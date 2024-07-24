@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/edwingeng/wuid/mysql/wuid"
+	"sort"
+	"strconv"
 )
 
 var w *wuid.WUID
@@ -30,4 +32,22 @@ func GenUid(dsn string) string {
 		Init(dsn)
 	}
 	return fmt.Sprintf("%#016x", w.Next())
+}
+
+// CombineId
+//
+//	@Description: A和B用户聊天，需要生成聊天消息会话，会话的id生成的方法就是排序组合两者的id
+//	@param aid
+//	@param bid
+//	@return string  会话id
+func CombineId(aid, bid string) string {
+	ids := []string{aid, bid}
+
+	sort.Slice(ids, func(i, j int) bool {
+		a, _ := strconv.ParseUint(ids[i], 0, 64)
+		b, _ := strconv.ParseUint(ids[j], 0, 64)
+		return a < b
+	})
+
+	return fmt.Sprintf("%s_%s", ids[0], ids[1])
 }

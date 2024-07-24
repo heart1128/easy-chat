@@ -255,6 +255,10 @@ func (s *Server) Send(msg interface{}, conns ...*Conn) error {
 //	@receiver s
 //	@param conn
 func (s *Server) handlerConn(conn *Conn) {
+	// 获取请求的用户id，方便聊天的时候获取用户使用
+	uids := s.GetUsers(conn)
+	conn.Uid = uids[0]
+
 	for {
 		// 1.获取请求消息
 		_, msg, err := conn.ReadMessage()

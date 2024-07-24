@@ -3,3 +3,7 @@ ListenOn: 0.0.0.0:10090
 
 JwtAuth:
   AccessSecret: heart.com
+
+Mongo:
+  Url: "mongodb://root:easy-chat@10.1.2.237:47017"
+  Db: easy-chat
