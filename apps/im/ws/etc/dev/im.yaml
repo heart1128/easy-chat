@@ -7,3 +7,8 @@ JwtAuth:
 Mongo:
   Url: "mongodb://root:easy-chat@10.1.2.237:47017"
   Db: easy-chat
+
+MsgChatTransfer:
+  Topic: MsgChatTransfer
+  Addrs:   # 服务器节点
+    - 10.1.2.237:9092

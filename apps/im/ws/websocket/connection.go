@@ -110,7 +110,6 @@ func (c *Conn) keepalive() {
 				idleTimer.Reset(c.maxConnectionIdle)
 				continue
 			}
-
 			val := c.maxConnectionIdle - time.Since(idle) // 判断超时差值
 			c.idleMu.Unlock()
 			if val <= 0 { // 超时了，直接关闭

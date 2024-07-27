@@ -6,5 +6,5 @@ import (
 )
 
 const (
-	defaultMaxConnectionIdle = time.Duration(math.MaxInt16)
+	defaultMaxConnectionIdle = time.Duration(math.MaxInt64)
 )

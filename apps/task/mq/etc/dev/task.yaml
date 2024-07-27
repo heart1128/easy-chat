@@ -1,0 +1,22 @@
+Name: task.mq
+ListenOn: 0.0.0.0:10091
+MsgChatTransfer:
+  Name: MsgChatTransfer
+  Brokers:   # 服务器节点
+    - 10.1.2.237:9092
+  Group: kafka
+  Topic: msgChatTransfer
+  Offset: first
+  Consumers: 1
+
+Mongo:
+  Url: "mongodb://root:easy-chat@10.1.2.237:47017"
+  Db: easy-chat
+
+Redisx:
+  Host: 10.1.2.237:16379
+  Type: node
+  Pass: easy-chat
+
+Ws:
+  Host: 127.0.0.1:10090

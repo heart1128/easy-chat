@@ -122,6 +122,54 @@ func (s *Server) addConn(conn *Conn, req *http.Request) {
 	s.userToConn[uid] = conn
 }
 
+// handlerConn
+//
+//	@Description: 内部私有函数，处理路由连接任务处理
+//	@receiver s
+//	@param conn
+func (s *Server) handlerConn(conn *Conn) {
+	// 获取请求的用户id，方便聊天的时候获取用户使用
+	uids := s.GetUsers(conn)
+	conn.Uid = uids[0]
+
+	for {
+		// 1.获取请求消息
+		_, msg, err := conn.ReadMessage()
+		if err != nil {
+			s.Errorf("websocket conn read message err %v", err)
+			s.Close(conn)
+			return
+		}
+
+		// 2.处理消息，json反序列化
+		var message Message // 自定义的message，是一个json结构体
+		if err = json.Unmarshal(msg, &message); err != nil {
+			s.Errorf("json unmarshal err %v, mes %v", err, msg)
+			s.Close(conn)
+			return
+		}
+
+		// 3. 根据消息类型进行处理
+		switch message.FrameType {
+		case FramePing: // 心跳检测
+			s.Send(&Message{FrameType: FramePing}, conn)
+		case FrameData:
+			// 根据请求的method分发路由，执行
+			if handler, ok := s.routes[message.Method]; ok {
+				// 找到路由对应的处理方法，执行
+				handler(s, conn, &message)
+			} else {
+				// http连接会返回这个错误文本，返回统一的消息格式
+				s.Send(&Message{
+					FrameType: FrameData,
+					Data:      fmt.Sprintf("不存在执行的方法 %v 请检查", message.Method),
+				}, conn)
+				// conn.WriteMessage(&Message{}, []byte(fmt.Sprintf("不存在执行的方法 %v 请检查", message.Method)))
+			}
+		}
+	}
+}
+
 // GetConn
 //
 //	@Description: 根据用户的uid获取websocket连接对象
@@ -247,54 +295,6 @@ func (s *Server) Send(msg interface{}, conns ...*Conn) error {
 	}
 
 	return nil
-}
-
-// handlerConn
-//
-//	@Description: 内部私有函数，处理路由连接任务处理
-//	@receiver s
-//	@param conn
-func (s *Server) handlerConn(conn *Conn) {
-	// 获取请求的用户id，方便聊天的时候获取用户使用
-	uids := s.GetUsers(conn)
-	conn.Uid = uids[0]
-
-	for {
-		// 1.获取请求消息
-		_, msg, err := conn.ReadMessage()
-		if err != nil {
-			s.Errorf("websocket conn read message err %v", err)
-			s.Close(conn)
-			return
-		}
-
-		// 2.处理消息，json反序列化
-		var message Message // 自定义的message，是一个json结构体
-		if err = json.Unmarshal(msg, &message); err != nil {
-			s.Errorf("json unmarshal err %v, mes %v", err, msg)
-			s.Close(conn)
-			return
-		}
-
-		// 3. 根据消息类型进行处理
-		switch message.FrameType {
-		case FramePing: // 心跳检测
-			s.Send(&Message{FrameType: FramePing}, conn)
-		case FrameData:
-			// 根据请求的method分发路由，执行
-			if handler, ok := s.routes[message.Method]; ok {
-				// 找到路由对应的处理方法，执行
-				handler(s, conn, &message)
-			} else {
-				// http连接会返回这个错误文本，返回统一的消息格式
-				s.Send(&Message{
-					FrameType: FrameData,
-					Data:      fmt.Sprintf("不存在执行的方法 %v 请检查", message.Method),
-				}, conn)
-				// conn.WriteMessage(&Message{}, []byte(fmt.Sprintf("不存在执行的方法 %v 请检查", message.Method)))
-			}
-		}
-	}
 }
 
 // AddRoutes
