@@ -27,6 +27,7 @@ func main() {
 
 	srv := websocket.NewServer(c.ListenOn,
 		websocket.WithServerAuthentication(handler.NewJwtAuth(ctx)), //加入jwt鉴权
+		websocket.WithServerAck(websocket.RigorAck),                 // 设置ack方式
 		// websocket.WithServerMaxConnectionIdle(10*time.Second),       // 设置最大空闲时间10s
 	) // 创建一个websocket,传入的是配置文件的监听地址
 	defer srv.Stop()

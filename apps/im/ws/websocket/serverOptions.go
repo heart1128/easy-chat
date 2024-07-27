@@ -8,7 +8,9 @@ type ServerOptions func(opt *ServerOption)
 
 type ServerOption struct {
 	Authentication
-	patten string
+	ack        AckType       // ack应答方式
+	ackTimeout time.Duration // ack有等待时间，超过处理就错误了
+	patten     string
 
 	maxConnectionIdle time.Duration
 }
@@ -16,6 +18,7 @@ type ServerOption struct {
 func newServerOptions(opts ...ServerOptions) ServerOption {
 	o := ServerOption{
 		Authentication:    new(authentication),
+		ackTimeout:        defaultAckTimeout,
 		maxConnectionIdle: defaultMaxConnectionIdle,
 		patten:            "/ws", // 路由
 	}
@@ -32,6 +35,13 @@ func newServerOptions(opts ...ServerOptions) ServerOption {
 func WithServerAuthentication(auth Authentication) ServerOptions {
 	return func(opt *ServerOption) {
 		opt.Authentication = auth
+	}
+}
+
+// WithServerAck 设置路由参数
+func WithServerAck(ack AckType) ServerOptions {
+	return func(opt *ServerOption) {
+		opt.ack = ack
 	}
 }
 
