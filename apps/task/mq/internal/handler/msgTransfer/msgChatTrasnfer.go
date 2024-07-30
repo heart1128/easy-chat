@@ -81,5 +81,11 @@ func (m *MsgChatTransfer) addChatLog(ctx context.Context, data *mq.MsgChatTransf
 		SendTime:       data.SendTime,
 	}
 	// 插入数据库
-	return m.svc.ChatLogModel.Insert(ctx, &chatlog)
+	err := m.svc.ChatLogModel.Insert(ctx, &chatlog)
+	if err != nil {
+		return err
+	}
+
+	// 更新会话 ，收到消息的同时，要更新会话
+	return m.svc.ConversationModel.UpdateMsg(ctx, &chatlog)
 }

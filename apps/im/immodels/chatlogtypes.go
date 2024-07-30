@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// 一次性能读多少消息，最大的
 var DefaultChatLogLimit int64 = 100
 
 // ChatLog mongodb用的是bson记录消息
