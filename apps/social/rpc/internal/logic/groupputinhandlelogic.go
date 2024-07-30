@@ -47,12 +47,12 @@ func (l *GroupPutInHandleLogic) GroupPutInHandle(in *social.GroupPutInHandleReq)
 
 	// 1. 查找请求
 	groupReq, err := l.svcCtx.GroupRequestsModel.FindOne(l.ctx, int64(in.GroupReqId))
-	if err != nil{
+	if err != nil {
 		return nil, errors.Wrapf(xerr.NewDBErr(), "find group req err %v, req %v", err, in.GroupReqId)
 	}
 
 	// 2. 取出数据，如果是已经拒绝或者通过的，直接返回
-	switch constants.HandlerResult(groupReq.HandleResult.Int64){
+	switch constants.HandlerResult(groupReq.HandleResult.Int64) {
 	case constants.PassHandlerResult:
 		return nil, errors.WithStack(ErrGroupReqBeforePass)
 	case constants.RefuseHandlerResult:
@@ -61,13 +61,13 @@ func (l *GroupPutInHandleLogic) GroupPutInHandle(in *social.GroupPutInHandleReq)
 
 	// 3. 先更新群请求结果为通过，请求的成员通过事务插入到群成员表
 	err = l.svcCtx.GroupRequestsModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-		
+
 		// 更新群请求结果
-		if err := l.svcCtx.GroupRequestsModel.Update(l.ctx, session, groupReq); err != nil{
+		if err := l.svcCtx.GroupRequestsModel.Update(l.ctx, session, groupReq); err != nil {
 			return errors.Wrapf(xerr.NewDBErr(), "update group req err %v req %v", err, groupReq)
 		}
 
-		if constants.HandlerResult(groupReq.HandleResult.Int64) != constants.PassHandlerResult{
+		if constants.HandlerResult(groupReq.HandleResult.Int64) != constants.PassHandlerResult {
 			return nil
 		}
 
@@ -87,6 +87,11 @@ func (l *GroupPutInHandleLogic) GroupPutInHandle(in *social.GroupPutInHandleReq)
 		return nil
 	})
 
+	if constants.HandlerResult(groupReq.HandleResult.Int64) != constants.PassHandlerResult {
+		return &social.GroupPutInHandleResp{}, err
+	}
 
-	return &social.GroupPutInHandleResp{}, err
+	return &social.GroupPutInHandleResp{
+		GroupId: groupReq.GroupId,
+	}, err
 }

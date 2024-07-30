@@ -81,4 +81,5 @@ func group(srv *websocket.Server, data *ws.Push) error {
 			})
 		}(id)
 	}
+	return nil
 }

@@ -29,5 +29,6 @@ func GetJwtToken(secretKey string, iat, seconds int64, uid string) (string, erro
 	token.Claims = claims
 
 	// 根据秘钥生成
+	// 使用base64加密
 	return token.SignedString([]byte(secretKey))
 }

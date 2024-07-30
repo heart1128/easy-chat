@@ -13,6 +13,8 @@ type Config struct {
 	// 因为要获取到user信息
 	UserRpc zrpc.RpcClientConf
 
+	ImRpc zrpc.RpcClientConf
+
 	JwtAuth struct {
 		AccessSecret string
 		//AccessExpire int64

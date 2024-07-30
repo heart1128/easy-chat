@@ -2,6 +2,7 @@ package group
 
 import (
 	"context"
+	"easy-chat/apps/im/rpc/imclient"
 	"easy-chat/apps/social/rpc/socialclient"
 	"easy-chat/pkg/ctxdata"
 
@@ -29,10 +30,11 @@ func NewCreateGroupLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Creat
 func (l *CreateGroupLogic) CreateGroup(req *types.GroupCreateReq) (resp *types.GroupCreateResp, err error) {
 	// todo: add your logic here and delete this line
 
+	// 群主uid
 	uid := ctxdata.GetUId(l.ctx)
 
 	// 创建群
-	_, err = l.svcCtx.Social.GroupCreate(l.ctx, &socialclient.GroupCreateReq{
+	res, err := l.svcCtx.Social.GroupCreate(l.ctx, &socialclient.GroupCreateReq{
 		Name:       req.Name,
 		Icon:       req.Icon,
 		CreatorUid: uid,
@@ -42,5 +44,15 @@ func (l *CreateGroupLogic) CreateGroup(req *types.GroupCreateReq) (resp *types.G
 		return nil, err
 	}
 
-	return &types.GroupCreateResp{}, nil
+	if res.Id == "" {
+		return nil, err
+	}
+
+	// 在创建群之后，使用Im创建群会话
+	_, err = l.svcCtx.Im.CreateGroupConversation(l.ctx, &imclient.CreateGroupConversationReq{
+		GroupId:  res.Id,
+		CreateId: uid,
+	})
+
+	return nil, nil
 }

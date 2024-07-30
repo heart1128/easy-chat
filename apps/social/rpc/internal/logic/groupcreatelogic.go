@@ -51,25 +51,28 @@ func (l *GroupCreateLogic) GroupCreate(in *social.GroupCreateReq) (*social.Group
 	}
 
 	// 开启事务，插入群数据表
-	err := l.svcCtx.GroupsModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error{
+	err := l.svcCtx.GroupsModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
 		_, err := l.svcCtx.GroupsModel.Insert(l.ctx, session, groups)
 
-		if err != nil{
+		if err != nil {
 			return errors.Wrapf(xerr.NewDBErr(), "insert group err %v req %v", err, in)
 		}
 
 		// 把群创建者插入到群成员中
 		_, err = l.svcCtx.GroupMembersModel.Insert(l.ctx, session, &socialmodels.GroupMembers{
-			GroupId: groups.Id,
-			UserId: in.CreatorUid,
+			GroupId:   groups.Id,
+			UserId:    in.CreatorUid,
 			RoleLevel: int64(constants.CreatorGroupRoleLevel),
 		})
 
-		if err != nil{
+		if err != nil {
 			return errors.Wrapf(xerr.NewDBErr(), "insert group member err %v req %v", err, in)
 		}
 		return nil
 	})
 
-	return &social.GroupCreateResp{}, err
+	// 返回群id
+	return &social.GroupCreateResp{
+		Id: groups.Id,
+	}, err
 }
