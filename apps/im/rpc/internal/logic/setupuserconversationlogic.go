@@ -27,7 +27,7 @@ func NewSetUpUserConversationLogic(ctx context.Context, svcCtx *svc.ServiceConte
 	}
 }
 
-// 建立会话: 群聊, 私聊
+// SetUpUserConversation 建立会话: 群聊, 私聊
 func (l *SetUpUserConversationLogic) SetUpUserConversation(in *im.SetUpUserConversationReq) (*im.SetUpUserConversationResp, error) {
 	// todo: add your logic here and delete this line
 
@@ -67,6 +67,12 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *im.SetUpUserConve
 
 		// 接收者的会话，双方都要有与对方的会话，只不过接收和发送是相对的
 		err = l.setUpUserConversation(conversationId, in.RecvId, in.SendId, constants.SingleChatType, false)
+		if err != nil {
+			return nil, err
+		}
+		// 群会话（）
+	case constants.GroupChatType:
+		err := l.setUpUserConversation(in.RecvId, in.SendId, in.RecvId, constants.GroupChatType, true)
 		if err != nil {
 			return nil, err
 		}

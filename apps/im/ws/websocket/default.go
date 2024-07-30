@@ -9,4 +9,5 @@ import (
 const (
 	defaultMaxConnectionIdle = time.Duration(math.MaxInt64)
 	defaultAckTimeout        = 30 * time.Second
+	defaultConcurrentcy      = 10 // 默认并发数
 )

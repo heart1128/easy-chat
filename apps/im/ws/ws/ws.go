@@ -28,6 +28,7 @@ type (
 		constants.ChatType `mapstructure:"chatType"` // 聊天类型（私聊，群聊）
 		SendId             string                    `mapstructure:"sendId"` //发送者id
 		RecvId             string                    `mapstructure:"recvId"`
+		RecvIds            []string                  `mapstructure:"recvIds"`
 		SendTime           int64                     `mapstructure:"sendTime"`
 
 		constants.MType `mapstructure:"mType"` // 消息类型

@@ -13,6 +13,12 @@ Mongo:
   Url: "mongodb://root:easy-chat@10.1.2.237:47017"
   Db: easy-chat
 
+SocialRpc:
+  Etcd:
+    Hosts:
+      - 10.1.2.237:3379
+    Key: social.rpc
+
 Redisx:
   Host: 10.1.2.237:16379
   Type: node

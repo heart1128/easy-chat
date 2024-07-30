@@ -6,6 +6,7 @@ import (
 	"easy-chat/apps/im/ws/ws"
 	"easy-chat/apps/task/mq/mq"
 	"easy-chat/pkg/constants"
+	"easy-chat/pkg/wuid"
 	"github.com/mitchellh/mapstructure"
 	"time"
 )
@@ -25,37 +26,29 @@ func Chat(svc *svc.ServiceContext) websocket.HandlerFunc {
 		}
 
 		// 处理聊天类型，私聊，群聊等
-		switch data.ChatType {
-		case constants.SingleChatType: // 私聊
-			// push，作为product到kafka中
-			err := svc.MsgChatTransferClient.Push(&mq.MsgChatTransfer{
-				ConversationId: data.ConversationId,
-				ChatType:       data.ChatType,
-				SendId:         conn.Uid,
-				RecvId:         data.RecvId,
-				SendTime:       time.Now().UnixNano(),
-				MType:          data.MType,
-				Content:        data.Msg.Content,
-			})
-			if err != nil {
-				srv.Send(websocket.NewErrMessage(err), conn)
-				return
+		// 没有会话id，分类讨论，有会话id，直接发送就行
+		if data.ConversationId == "" {
+			switch data.ChatType {
+			case constants.SingleChatType: // 私聊
+				data.ConversationId = wuid.CombineId(conn.Uid, data.RecvId)
+			case constants.GroupChatType: // 群聊
+				data.ConversationId = data.RecvId
 			}
+		}
 
-			//err = logic.NewConversation(context.Background(), srv, svc).SingleChat(&data, conn.Uid)
-			//if err != nil {
-			//	srv.Send(websocket.NewErrMessage(err), conn)
-			//	return
-			//}
-			//
-			//srv.SendByUserId(websocket.NewMessage(conn.Uid, ws.Chat{
-			//	ConversationId: data.ConversationId,
-			//	ChatType:       data.ChatType,
-			//	SendId:         conn.Uid,
-			//	RecvId:         data.RecvId,
-			//	SendTime:       time.Now().UnixMilli(),
-			//	Msg:            data.Msg,
-			//}), data.RecvId)
+		// push，作为product到kafka中
+		err := svc.MsgChatTransferClient.Push(&mq.MsgChatTransfer{
+			ConversationId: data.ConversationId,
+			ChatType:       data.ChatType,
+			SendId:         conn.Uid,
+			RecvId:         data.RecvId,
+			SendTime:       time.Now().UnixNano(),
+			MType:          data.MType,
+			Content:        data.Msg.Content,
+		})
+		if err != nil {
+			srv.Send(websocket.NewErrMessage(err), conn)
+			return
 		}
 
 	}

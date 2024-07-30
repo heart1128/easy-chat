@@ -4,6 +4,7 @@ import (
 	"context"
 	"easy-chat/apps/im/immodels"
 	"easy-chat/apps/im/ws/websocket"
+	"easy-chat/apps/social/rpc/socialclient"
 	"easy-chat/apps/task/mq/internal/svc"
 	"easy-chat/apps/task/mq/mq"
 	"easy-chat/pkg/constants"
@@ -54,7 +55,48 @@ func (m *MsgChatTransfer) Consume(ctx context.Context, key, value string) error 
 		return err
 	}
 
+	// 根据类型判断处理，从kafka中拿到数据消息，使用websocket发送
+	switch data.ChatType {
+	case constants.SingleChatType:
+		return m.single(&data)
+	case constants.GroupChatType:
+		return m.group(&data, context.Background())
+	}
+
+	return nil
+}
+
+func (m *MsgChatTransfer) single(data *mq.MsgChatTransfer) error {
 	// 使用websocket推送消息
+	return m.svc.WsClient.Send(websocket.Message{
+		FrameType: websocket.FrameData,
+		Method:    "push",
+		FormId:    constants.SYSTEM_ROOT_UID, // 当前系统角色
+		Data:      data,
+	})
+}
+
+func (m *MsgChatTransfer) group(data *mq.MsgChatTransfer, ctx context.Context) error {
+	// 查询群用户，推送给对应的群用户, 不是从数据库中，直接用social rpc服务获取指定的群用户
+	users, err := m.svc.Social.GroupUsers(ctx, &socialclient.GroupUsersReq{
+		GroupId: data.RecvId, // recvId就是群Id
+	})
+	if err != nil {
+		return err
+	}
+
+	data.RecvIds = make([]string, 0, len(users.List))
+
+	for _, user := range users.List {
+		// 不能发送给自己
+		if user.UserId == data.SendId {
+			continue
+		}
+
+		data.RecvIds = append(data.RecvIds, user.UserId)
+	}
+
+	// 调到了多协程发送
 	return m.svc.WsClient.Send(websocket.Message{
 		FrameType: websocket.FrameData,
 		Method:    "push",

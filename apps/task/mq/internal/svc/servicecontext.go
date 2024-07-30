@@ -3,9 +3,11 @@ package svc
 import (
 	"easy-chat/apps/im/immodels"
 	"easy-chat/apps/im/ws/websocket"
+	"easy-chat/apps/social/rpc/socialclient"
 	"easy-chat/apps/task/mq/internal/config"
 	"easy-chat/pkg/constants"
 	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/zeromicro/go-zero/zrpc"
 	"net/http"
 )
 
@@ -15,6 +17,7 @@ type ServiceContext struct {
 	WsClient websocket.Client
 	*redis.Redis
 
+	socialclient.Social   // 社交rpc，查询群用户
 	immodels.ChatLogModel // mongo数据model
 	immodels.ConversationModel
 }
@@ -25,6 +28,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Redis:             redis.MustNewRedis(c.Redisx),
 		ChatLogModel:      immodels.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
 		ConversationModel: immodels.MustConversationModel(c.Mongo.Url, c.Mongo.Db),
+		Social:            socialclient.NewSocial(zrpc.MustNewClient(c.SocialRpc)),
 	}
 
 	// websocket client需要单独创建

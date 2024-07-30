@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/threading"
 	"net/http"
 	"sync"
 	"time"
@@ -36,6 +37,8 @@ type Server struct {
 	routes map[string]HandlerFunc // 存储服务路由
 	addr   string
 
+	*threading.TaskRunner // 并发任务执行，内部使用waitGroup和channel实现的
+
 	authentication Authentication // 连接鉴权(token)
 
 	sync.RWMutex                  // 因为下面的map不是并发安全的，加读写锁保证安全
@@ -56,6 +59,7 @@ func NewServer(addr string, opts ...ServerOptions) *Server {
 	return &Server{
 		routes:         make(map[string]HandlerFunc),
 		addr:           addr,
+		TaskRunner:     threading.NewTaskRunner(opt.concurrency),
 		authentication: opt.Authentication,
 		connToUser:     make(map[*Conn]string),
 		userToConn:     make(map[string]*Conn),

@@ -10,6 +10,7 @@ type MsgChatTransfer struct {
 	constants.ChatType `json:"chatType"` // 聊天类型（私聊，群聊）
 	SendId             string            `json:"sendId"` //发送者id
 	RecvId             string            `json:"recvId"`
+	RecvIds            []string          `json:"recvIds"`
 	SendTime           int64             `json:"sendTime"`
 
 	constants.MType `json:"mType"` // 消息类型

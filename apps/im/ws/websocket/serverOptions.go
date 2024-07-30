@@ -13,6 +13,8 @@ type ServerOption struct {
 	patten     string
 
 	maxConnectionIdle time.Duration
+
+	concurrency int // 群聊websocket并发数
 }
 
 func newServerOptions(opts ...ServerOptions) ServerOption {
@@ -21,6 +23,7 @@ func newServerOptions(opts ...ServerOptions) ServerOption {
 		ackTimeout:        defaultAckTimeout,
 		maxConnectionIdle: defaultMaxConnectionIdle,
 		patten:            "/ws", // 路由
+		concurrency:       defaultConcurrentcy,
 	}
 
 	// 执行func(opt *ServerOption)，参数是o
