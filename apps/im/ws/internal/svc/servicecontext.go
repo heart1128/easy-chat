@@ -19,7 +19,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:                c,
 		ChatLogModel:          immodels.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
-		MsgReadTransferClient: mqclient.
+		MsgReadTransferClient: mqclient.NewMsgReadTransferClient(c.MsgReadTransfer.Addrs, c.MsgReadTransfer.Topic),
 		MsgChatTransferClient: mqclient.NewMsgChatTransferClient(c.MsgChatTransfer.Addrs, c.MsgChatTransfer.Topic),
 	}
 }

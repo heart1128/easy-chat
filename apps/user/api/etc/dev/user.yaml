@@ -11,3 +11,7 @@ UserRpc:
 JwtAuth:
   AccessSecret: heart.com
   AccessExpire: 8640000 # 100天过期
+
+Redisx:
+  Host: 10.1.2.237:16379
+  Pass: easy-chat

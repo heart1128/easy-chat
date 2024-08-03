@@ -40,4 +40,4 @@ Redisx:
   Pass: easy-chat
 
 Ws:
-  Host: 127.0.0.1:10090
+  Host: 10.1.2.237:10090

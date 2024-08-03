@@ -5,6 +5,7 @@ import (
 	"easy-chat/apps/user/api/internal/svc"
 	"easy-chat/apps/user/api/internal/types"
 	"easy-chat/apps/user/rpc/user"
+	"easy-chat/pkg/constants"
 	"github.com/jinzhu/copier"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -38,6 +39,10 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 
 	var res types.LoginResp
 	copier.Copy(&res, LoginResp)
+
+	// 处理登录的业务，缓存登录用户
+	// constants.REDIS_ONLINE_USER是redis的key, LoginResp.Id是哈希类型的key, value随便
+	l.svcCtx.Redis.HsetCtx(l.ctx, constants.REDIS_ONLINE_USER, LoginResp.Id, "1")
 
 	return &res, nil
 }
