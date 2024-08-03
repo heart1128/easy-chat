@@ -12,12 +12,14 @@ type ServiceContext struct {
 
 	immodels.ChatLogModel          // 数据库模型，MongoDB的
 	mqclient.MsgChatTransferClient // kafka客户端
+	mqclient.MsgReadTransferClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:                c,
 		ChatLogModel:          immodels.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
+		MsgReadTransferClient: mqclient.
 		MsgChatTransferClient: mqclient.NewMsgChatTransferClient(c.MsgChatTransfer.Addrs, c.MsgChatTransfer.Topic),
 	}
 }

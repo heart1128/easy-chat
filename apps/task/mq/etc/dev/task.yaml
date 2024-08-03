@@ -9,6 +9,21 @@ MsgChatTransfer:
   Offset: first
   Consumers: 1
 
+MsgReadTransfer:
+  Name: MsgReadTransfer
+  Brokers:   # 服务器节点
+    - 10.1.2.237:9092
+  Group: kafka
+  Topic: msgReadTransfer
+  Offset: first
+  Consumers: 1
+
+# 合并服务端已读消息的处理
+MsgReadHandler:
+  GroupMsgReadHandler: 1  # 是否开启这个功能
+  GroupMsgReadRecordDelayTime: 60 # 缓存的最大时间
+  GroupMsgReadRecordDelayCount: 2 # 缓存记录的最大上限
+
 Mongo:
   Url: "mongodb://root:easy-chat@10.1.2.237:47017"
   Db: easy-chat

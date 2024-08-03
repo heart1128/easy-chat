@@ -50,6 +50,36 @@ func Chat(svc *svc.ServiceContext) websocket.HandlerFunc {
 			srv.Send(websocket.NewErrMessage(err), conn)
 			return
 		}
+	}
+}
+
+// MarkRead
+//
+//	@Description: 已读未读的处理
+//	@param svc
+//	@return websocket.HandlerFunc
+func MarkRead(svc *svc.ServiceContext) websocket.HandlerFunc {
+	return func(srv *websocket.Server, conn *websocket.Conn, msg *websocket.Message) {
+
+		var data ws.MarkRead
+		// 解json，自动找对应的字段填充
+		if err := mapstructure.Decode(msg.Data, &data); err != nil {
+			srv.Send(websocket.NewErrMessage(err), conn)
+			return
+		}
+
+		// 从kafka中使用websocket发送
+		err := svc.MsgReadTransferClient.Push(&mq.MsgMarkRead{
+			ChatType:       data.ChatType,
+			ConversationId: data.ConversationId,
+			SendId:         conn.Uid,
+			RecvId:         data.RecvId,
+			MsgIds:         data.MsgIds,
+		})
+		if err != nil {
+			srv.Send(websocket.NewErrMessage(err), conn)
+			return
+		}
 
 	}
 }

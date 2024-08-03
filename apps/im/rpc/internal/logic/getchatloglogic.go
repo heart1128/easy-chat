@@ -46,6 +46,7 @@ func (l *GetChatLogLogic) GetChatLog(in *im.GetChatLogReq) (*im.GetChatLogResp, 
 					MsgType:        int32(chatLog.MsgType),
 					MsgContent:     chatLog.MsgContent,
 					SendTime:       chatLog.SendTime,
+					ReadRecords:    chatLog.ReadRecords, // 已读记录
 				},
 			},
 		}, nil
@@ -57,7 +58,7 @@ func (l *GetChatLogLogic) GetChatLog(in *im.GetChatLogReq) (*im.GetChatLogResp, 
 	if err != nil {
 		return nil, errors.Wrapf(xerr.NewDBErr(), "ListBySendTime err %v ,req %v", err, in)
 	}
-	// 查询列表有很对，一个个组装
+	// 查询列表有很多对，一个个组装
 	res := make([]*im.ChatLog, 0, len(data))
 	for _, datum := range data {
 		res = append(res, &im.ChatLog{
@@ -69,6 +70,7 @@ func (l *GetChatLogLogic) GetChatLog(in *im.GetChatLogReq) (*im.GetChatLogResp, 
 			MsgType:        int32(datum.MsgType),
 			MsgContent:     datum.MsgContent,
 			SendTime:       datum.SendTime,
+			ReadRecords:    datum.ReadRecords,
 		})
 	}
 

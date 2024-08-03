@@ -23,6 +23,7 @@ type ChatLog struct {
 	MsgContent     string             `bson:"msgContent"`
 	SendTime       int64              `bson:"sendTime"`
 	Status         int                `bson:"status"`
+	ReadRecords    []byte             `bson:"readRecords"` // 已读未读
 
 	// TODO: Fill your own fields
 	UpdateAt time.Time `bson:"updateAt,omitempty" json:"updateAt,omitempty"`

@@ -74,6 +74,7 @@ message CreateGroupConversationReq {
 }
 message CreateGroupConversationResp {}
 
+
 service Im {
   // 获取会话记录
   rpc GetChatLog(GetChatLogReq) returns(GetChatLogResp);

@@ -16,3 +16,11 @@ type MsgChatTransfer struct {
 	constants.MType `json:"mType"` // 消息类型
 	Content         string         `json:"content"`
 }
+
+type MsgMarkRead struct {
+	constants.ChatType `json:"chatType"`
+	ConversationId     string   `json:"conversationId"`
+	SendId             string   `json:"sendId"` //发送者id
+	RecvId             string   `json:"recvId"`
+	MsgIds             []string `json:"msgIds"`
+}

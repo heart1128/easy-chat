@@ -9,6 +9,8 @@ import (
 type (
 	// Msg 具体消息的结构体
 	Msg struct {
+		MsgId           string            `mapstructure:"msgId"`
+		ReadRecords     map[string]string `mapstructure:"readRecords"`
 		constants.MType `mapstructure:"mType"`
 		Content         string `mapstructure:"content"`
 	}
@@ -30,8 +32,20 @@ type (
 		RecvId             string                    `mapstructure:"recvId"`
 		RecvIds            []string                  `mapstructure:"recvIds"`
 		SendTime           int64                     `mapstructure:"sendTime"`
+		ContentType        constants.ContentType     `mapstructure:"contentType"`
+
+		MsgId       string            `mapstructure:"msgId"`
+		ReadRecords map[string]string `mapstructure:"readRecords"`
 
 		constants.MType `mapstructure:"mType"` // 消息类型
 		Content         string                 `mapstructure:"content"`
+	}
+
+	// MarkRead 标记已读
+	MarkRead struct {
+		constants.ChatType `mapstructure:"chatType"`
+		RecvId             string   `mapstructure:"recvId"`
+		ConversationId     string   `mapstructure:"conversationId"`
+		MsgIds             []string `mapstructure:"msgId"`
 	}
 )

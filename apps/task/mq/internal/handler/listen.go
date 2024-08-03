@@ -22,7 +22,8 @@ func NewListen(svc *svc.ServiceContext) *Listen {
 //	@return []service.Service
 func (l *Listen) Services() []service.Service {
 	return []service.Service{
-		// TODO: 可以加载多个消费者，在启动中会加入同一个消费组
+		kq.MustNewQueue(l.svc.Config.MsgReadTransfer, msgTransfer.NewMsgReadTransfer(l.svc)),
+		// TODO: 可以加载多个消费者
 		// 加载kafka消费者对象, 就是实现了Consume接口的对象
 		kq.MustNewQueue(l.svc.Config.MsgChatTransfer, msgTransfer.NewMsgChatTransfer(l.svc)),
 	}

@@ -3,28 +3,25 @@ package msgTransfer
 import (
 	"context"
 	"easy-chat/apps/im/immodels"
-	"easy-chat/apps/im/ws/websocket"
-	"easy-chat/apps/social/rpc/socialclient"
+	"easy-chat/apps/im/ws/ws"
 	"easy-chat/apps/task/mq/internal/svc"
 	"easy-chat/apps/task/mq/mq"
-	"easy-chat/pkg/constants"
+	"easy-chat/pkg/bitmap"
 	"encoding/json"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/logx"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // MsgChatTransfer
 //
 //	@Description: kafka消费者，只要实现指定消费者接口就行
 type MsgChatTransfer struct {
-	logx.Logger
-	svc *svc.ServiceContext
+	*baseMsgTransfer
 }
 
 func NewMsgChatTransfer(svc *svc.ServiceContext) *MsgChatTransfer {
 	return &MsgChatTransfer{
-		Logger: logx.WithContext(context.Background()),
-		svc:    svc,
+		baseMsgTransfer: NewBaseMsgTransfer(svc),
 	}
 }
 
@@ -41,67 +38,32 @@ func (m *MsgChatTransfer) Consume(ctx context.Context, key, value string) error 
 	fmt.Println("key ：", key, " value : ", value)
 
 	var (
-		data mq.MsgChatTransfer // 消息类型结构体
-		c    = context.Background()
+		data  mq.MsgChatTransfer // 消息类型结构体
+		c     = context.Background()
+		msgId = primitive.NewObjectID()
 	)
 
 	// kafka保存的是json序列化数据，这里消费者拿到反序列化
 	if err := json.Unmarshal([]byte(value), &data); err != nil {
-		panic(err)
+		return err
 	}
 
 	// 消费者拿到数据之后把数据保存到数据库
-	if err := m.addChatLog(c, &data); err != nil {
+	if err := m.addChatLog(c, msgId, &data); err != nil {
 		return err
 	}
 
 	// 根据类型判断处理，从kafka中拿到数据消息，使用websocket发送
-	switch data.ChatType {
-	case constants.SingleChatType:
-		return m.single(&data)
-	case constants.GroupChatType:
-		return m.group(&data, context.Background())
-	}
-
-	return nil
-}
-
-func (m *MsgChatTransfer) single(data *mq.MsgChatTransfer) error {
-	// 使用websocket推送消息
-	return m.svc.WsClient.Send(websocket.Message{
-		FrameType: websocket.FrameData,
-		Method:    "push",
-		FormId:    constants.SYSTEM_ROOT_UID, // 当前系统角色
-		Data:      data,
-	})
-}
-
-func (m *MsgChatTransfer) group(data *mq.MsgChatTransfer, ctx context.Context) error {
-	// 查询群用户，推送给对应的群用户, 不是从数据库中，直接用social rpc服务获取指定的群用户
-	users, err := m.svc.Social.GroupUsers(ctx, &socialclient.GroupUsersReq{
-		GroupId: data.RecvId, // recvId就是群Id
-	})
-	if err != nil {
-		return err
-	}
-
-	data.RecvIds = make([]string, 0, len(users.List))
-
-	for _, user := range users.List {
-		// 不能发送给自己
-		if user.UserId == data.SendId {
-			continue
-		}
-
-		data.RecvIds = append(data.RecvIds, user.UserId)
-	}
-
-	// 调到了多协程发送
-	return m.svc.WsClient.Send(websocket.Message{
-		FrameType: websocket.FrameData,
-		Method:    "push",
-		FormId:    constants.SYSTEM_ROOT_UID, // 当前系统角色
-		Data:      data,
+	return m.Transfer(ctx, &ws.Push{
+		ConversationId: data.ConversationId,
+		ChatType:       data.ChatType,
+		SendId:         data.SendId,
+		RecvId:         data.RecvId,
+		RecvIds:        data.RecvIds,
+		SendTime:       data.SendTime,
+		MType:          data.MType,
+		MsgId:          msgId.Hex(),
+		Content:        data.Content,
 	})
 }
 
@@ -111,8 +73,9 @@ func (m *MsgChatTransfer) group(data *mq.MsgChatTransfer, ctx context.Context) e
 //	@receiver m
 //	@param data
 //	@return error
-func (m *MsgChatTransfer) addChatLog(ctx context.Context, data *mq.MsgChatTransfer) error {
+func (m *MsgChatTransfer) addChatLog(ctx context.Context, msgId primitive.ObjectID, data *mq.MsgChatTransfer) error {
 	chatlog := immodels.ChatLog{
+		ID:             msgId,
 		ConversationId: data.ConversationId,
 		SendId:         data.SendId,
 		RecvId:         data.RecvId,
@@ -122,12 +85,19 @@ func (m *MsgChatTransfer) addChatLog(ctx context.Context, data *mq.MsgChatTransf
 		MsgContent:     data.Content,
 		SendTime:       data.SendTime,
 	}
+
+	// 记录已读未读情况
+	readRecords := bitmap.NewBitmap(0)
+	// 自己是已读的
+	readRecords.Set(chatlog.SendId)
+	chatlog.ReadRecords = readRecords.Export()
+
 	// 插入数据库
-	err := m.svc.ChatLogModel.Insert(ctx, &chatlog)
+	err := m.svcCtx.ChatLogModel.Insert(ctx, &chatlog)
 	if err != nil {
 		return err
 	}
 
 	// 更新会话 ，收到消息的同时，要更新会话
-	return m.svc.ConversationModel.UpdateMsg(ctx, &chatlog)
+	return m.svcCtx.ConversationModel.UpdateMsg(ctx, &chatlog)
 }

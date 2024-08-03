@@ -12,10 +12,17 @@ type Config struct {
 	ListenOn string
 
 	MsgChatTransfer kq.KqConf // kafka配置
+	MsgReadTransfer kq.KqConf
 	Redisx          redis.RedisConf
 	Mongo           struct {
 		Url string
 		Db  string
+	}
+
+	MsgReadHandler struct {
+		GroupMsgReadHandler          int
+		GroupMsgReadRecordDelayTime  int64
+		GroupMsgReadRecordDelayCount int
 	}
 
 	SocialRpc zrpc.RpcClientConf

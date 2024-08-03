@@ -12,3 +12,8 @@ MsgChatTransfer:
   Topic: MsgChatTransfer
   Addrs:   # 服务器节点
     - 10.1.2.237:9092
+
+MsgReadTransfer:
+  Topic: MsgReadTransfer
+  Addrs:   # 服务器节点
+    - 10.1.2.237:9092
