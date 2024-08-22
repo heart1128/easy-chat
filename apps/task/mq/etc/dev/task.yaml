@@ -3,7 +3,7 @@ ListenOn: 0.0.0.0:10091
 MsgChatTransfer:
   Name: MsgChatTransfer
   Brokers:   # 服务器节点
-    - 10.1.2.237:9092
+    - 10.3.237.104:9092
   Group: kafka
   Topic: msgChatTransfer
   Offset: first
@@ -12,7 +12,7 @@ MsgChatTransfer:
 MsgReadTransfer:
   Name: MsgReadTransfer
   Brokers:   # 服务器节点
-    - 10.1.2.237:9092
+    - 10.3.237.104:9092
   Group: kafka
   Topic: msgReadTransfer
   Offset: first
@@ -25,19 +25,19 @@ MsgReadHandler:
   GroupMsgReadRecordDelayCount: 2 # 缓存记录的最大上限
 
 Mongo:
-  Url: "mongodb://root:easy-chat@10.1.2.237:47017"
+  Url: "mongodb://root:easy-chat@10.3.237.104:47017"
   Db: easy-chat
 
 SocialRpc:
   Etcd:
     Hosts:
-      - 10.1.2.237:3379
+      - 10.3.237.104:3379
     Key: social.rpc
 
 Redisx:
-  Host: 10.1.2.237:16379
+  Host: 10.3.237.104:16379
   Type: node
   Pass: easy-chat
 
 Ws:
-  Host: 10.1.2.237:10090
+  Host: 10.3.237.104:10090

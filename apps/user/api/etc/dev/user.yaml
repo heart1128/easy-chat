@@ -5,7 +5,7 @@ Port: 8888
 UserRpc:
   Etcd:
     Hosts:
-      - 10.1.2.237:3379
+      - 10.3.237.104:3379
     Key: user.rpc
 
 JwtAuth:
@@ -13,5 +13,5 @@ JwtAuth:
   AccessExpire: 8640000 # 100天过期
 
 Redisx:
-  Host: 10.1.2.237:16379
+  Host: 10.3.237.104:16379
   Pass: easy-chat
