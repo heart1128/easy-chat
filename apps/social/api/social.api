@@ -183,9 +183,10 @@ service social {
 }
 
 @server (
-	prefix: v1/social
-	group:  group
-	jwt:    JwtAuth
+	prefix:     v1/social
+	group:      group
+	jwt:        JwtAuth
+	middleware: IdempotenceMiddleware // 使用自定义中间件
 )
 service social {
 	@doc "创群"
